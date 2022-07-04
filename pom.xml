@@ -7,6 +7,11 @@
     <groupId>com.github.workingdeveloper.poc</groupId>
     <artifactId>async-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <modules>
+        <module>async-client</module>
+        <module>async-server</module>
+        <module>async-server-api</module>
+    </modules>
     <properties>
         <asyncpoc.version>0.1.0-SNAPSHOT</asyncpoc.version>
         <maven.compiler.source>17</maven.compiler.source>
