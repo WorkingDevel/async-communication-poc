@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: async-client-local
+  activemq:
+    broker-url: "tcp://localhost:61616"
+    user: "admin"
+    password: "secret"
+    non-blocking-redelivery: true
+    packages:
+      trust-all: true

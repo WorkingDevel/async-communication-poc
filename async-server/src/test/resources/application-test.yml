@@ -1,0 +1,7 @@
+#spring:
+#  activemq:
+#    in-memory: true
+#    broker-url: ~
+#    non-blocking-redelivery: true
+#    packages:
+#      trust-all: true

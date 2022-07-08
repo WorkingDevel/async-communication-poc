@@ -19,6 +19,7 @@
         <java.version>17</java.version>
         <spring.version>2.7.1</spring.version>
         <junit.version>5.8.1</junit.version>
+        <actviemq.version>5.16.5</actviemq.version>
     </properties>
     <packaging>pom</packaging>
 

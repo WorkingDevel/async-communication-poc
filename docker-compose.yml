@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  server:
+    build:
+      context: ./async-server
+    ports:
+      - "8088:8080"
+    depends_on:
+      - activemq
+  client:
+    build:
+      context: ./async-client
+    ports:
+      - "8080:8080"
+    depends_on:
+      - activemq
+  activemq:
+    image: rmohr/activemq:latest
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+#    volumes:
+#      - ghost-data:/var/lib/ghost/content/
