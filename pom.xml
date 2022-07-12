@@ -20,6 +20,9 @@
         <spring.version>2.7.1</spring.version>
         <junit.version>5.8.1</junit.version>
         <actviemq.version>5.16.5</actviemq.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
     </properties>
     <packaging>pom</packaging>
 
