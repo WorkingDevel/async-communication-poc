@@ -1,21 +1,26 @@
 package poc.async.client.infrastructure;
 
-import org.apache.activemq.command.ActiveMQObjectMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.support.JmsHeaders;
+import org.springframework.messaging.core.MessagePostProcessor;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
+import poc.async.client.Sender;
 import poc.async.server.api.ApiClient;
 import poc.async.server.api.JmsConfigurations;
 import poc.async.server.api.model.Antrag;
 import poc.async.server.api.model.AntragCreateResponse;
-import poc.async.server.api.model.impl.AntragImpl;
 
 import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
 import java.util.UUID;
 
 @Component
 public class JmsTemplateApiClient implements ApiClient {
+
+    private static final Logger log = LoggerFactory.getLogger(Sender.class);
 
     private final JmsTemplate jmsTemplate;
 
@@ -28,15 +33,20 @@ public class JmsTemplateApiClient implements ApiClient {
 
     @Override
     public AntragCreateResponse createAntrag(Antrag antrag) throws JMSException {
+        MessagePostProcessor mpp = message -> {
+            message = MessageBuilder.fromMessage(message)
+                    .setHeader(JmsHeaders.CORRELATION_ID, UUID.randomUUID().toString())
+                    .setHeader(JmsHeaders.REPLY_TO, JmsConfigurations.QUEUE_ANTRAG_RESPONSE) // this triggers queue creation
+                    .build();
+            return message;
+        };
 
-        ObjectMessage msg = new ActiveMQObjectMessage();
-        msg.setJMSCorrelationID(UUID.randomUUID().toString());
-        msg.setObject(new AntragImpl());
-        jmsMessagingTemplate.convertAndSend(
-                JmsConfigurations.QUEUE_ANTRAG_REQUEST, msg
+        log.info("Sending... ");
+        var response = jmsMessagingTemplate.convertSendAndReceive(
+                JmsConfigurations.QUEUE_ANTRAG_REQUEST, antrag, AntragCreateResponse.class, mpp
         );
-//        jmsTemplate.convertAndSend(JmsConfigurations.QUEUE_ANTRAG_REQUEST, "Hello World" + OffsetDateTime.now());
 
+        log.info("Received");
         return null;
     }
 }
