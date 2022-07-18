@@ -36,17 +36,22 @@ public class JmsTemplateApiClient implements ApiClient {
         MessagePostProcessor mpp = message -> {
             message = MessageBuilder.fromMessage(message)
                     .setHeader(JmsHeaders.CORRELATION_ID, UUID.randomUUID().toString())
-                    .setHeader(JmsHeaders.REPLY_TO, JmsConfigurations.QUEUE_ANTRAG_RESPONSE) // this triggers queue creation
+//                    .setHeader(JmsHeaders.REPLY_TO, JmsConfigurations.QUEUE_ANTRAG_RESPONSE) // this triggers queue creation
                     .build();
+            log.info("Message to send {}: ", message);
             return message;
         };
 
         log.info("Sending... ");
-        var response = jmsMessagingTemplate.convertSendAndReceive(
-                JmsConfigurations.QUEUE_ANTRAG_REQUEST, antrag, AntragCreateResponse.class, mpp
-        );
+        var response =
+                jmsMessagingTemplate.convertSendAndReceive(
+                        JmsConfigurations.QUEUE_ANTRAG_REQUEST,
+                        antrag,
+                        AntragCreateResponse.class,
+                        mpp
+                );
 
-        log.info("Received");
-        return null;
+        log.info("Received {}", response);
+        return response;
     }
 }

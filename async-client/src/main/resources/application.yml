@@ -1,2 +1,12 @@
 server:
   port: 8081
+
+logging:
+  level:
+    com:
+      ibm:
+        mq: TRACE
+    org:
+      springframework:
+        jms: DEBUG
+        messaging: DEBUG

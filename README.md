@@ -4,3 +4,4 @@
 - https://bdarfler.medium.com/synchronous-request-response-with-activemq-and-spring-21359a438a86
 - spring boot integration
 - https://codenotfound.com/spring-jms-jmstemplate-example.html
+- https://stackoverflow.com/questions/53506177/how-to-use-jmstemplate-sendandreceive

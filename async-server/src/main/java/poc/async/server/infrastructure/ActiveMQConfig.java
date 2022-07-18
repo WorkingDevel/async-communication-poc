@@ -1,38 +1,62 @@
 package poc.async.server.infrastructure;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
+import org.springframework.boot.autoconfigure.jms.JmsProperties;
+import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
-import org.springframework.jms.connection.CachingConnectionFactory;
+import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.messaging.converter.JsonbMessageConverter;
-import poc.async.server.api.JmsConfigurations;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
+import org.springframework.jms.support.converter.MessagingMessageConverter;
 
 import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
 
 @Configuration
 @EnableJms
 public class ActiveMQConfig {
 
-    @Bean
-    public DefaultJmsListenerContainerFactory myFactory(DefaultJmsListenerContainerFactoryConfigurer configurer) {
-        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        ConnectionFactory connectionFactory = getCustomConnectionFactory();
-        configurer.configure(factory, connectionFactory);
-        factory.setMessageConverter(new JsonbMessageConverter());
-        return factory;
+    @Configuration(
+            proxyBeanMethods = false
+    )
+    @ConditionalOnClass({JmsMessagingTemplate.class})
+    protected static class MessagingTemplateConfiguration {
+        protected MessagingTemplateConfiguration() {
+        }
+
+        @Bean
+        public JmsMessagingTemplate jmsMessagingTemplate(JmsProperties properties, JmsTemplate jmsTemplate) {
+            JmsMessagingTemplate messagingTemplate = new JmsMessagingTemplate(jmsTemplate);
+            this.mapTemplateProperties(properties.getTemplate(), messagingTemplate);
+            final var messagingMessageConverter = new MessagingMessageConverter(jmsTemplate.getMessageConverter());
+            messagingTemplate.setJmsMessageConverter(messagingMessageConverter);
+            return messagingTemplate;
+        }
+
+        private void mapTemplateProperties(JmsProperties.Template properties, JmsMessagingTemplate messagingTemplate) {
+            PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+            map.from(properties::getDefaultDestination).to(messagingTemplate::setDefaultDestinationName);
+        }
     }
 
+//    @Bean
+//    public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory) {
+//        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
+//        jmsTemplate.setMessageConverter(new MappingJackson2MessageConverter());
+//        return jmsTemplate;
+//    }
 
-
-    private ConnectionFactory getCustomConnectionFactory() {
-        return ...
+    @Bean
+    public MessageConverter messageConverter() {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setTargetType(MessageType.TEXT);
+        converter.setTypeIdPropertyName("_type");
+        return converter;
     }
 }

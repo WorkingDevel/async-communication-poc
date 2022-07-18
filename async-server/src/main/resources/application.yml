@@ -1,0 +1,9 @@
+logging:
+  level:
+    com:
+      ibm:
+        mq: TRACE
+    org:
+      springframework:
+        jms: DEBUG
+        messaging: DEBUG

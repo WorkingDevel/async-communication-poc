@@ -13,18 +13,18 @@ import java.util.UUID;
 @Component
 public class Sender {
 
-    private final JmsTemplateApiClient client;
-
     private static final Logger log = LoggerFactory.getLogger(Sender.class);
+    private final JmsTemplateApiClient client;
 
     public Sender(JmsTemplateApiClient client) {
         this.client = client;
     }
 
 
-    @Scheduled(fixedDelay = 10000L)
+    @Scheduled(fixedDelay = 1000L)
     public void sendContinuously() throws JMSException {
         log.info("Sending");
-        client.createAntrag(new AntragImpl(UUID.randomUUID()));
+        var res = client.createAntrag(new AntragImpl(UUID.randomUUID()));
+        log.info("Got it {}", res);
     }
 }
